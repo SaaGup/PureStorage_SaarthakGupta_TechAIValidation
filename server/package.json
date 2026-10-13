@@ -1,0 +1,12 @@
+{
+  "name": "pure-insights-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend and data pipeline for the Pure Insights Command Centre",
+  "scripts": {
+    "etl": "node src/etl/run.js",
+    "test": "node --test"
+  },
+  "engines": { "node": ">=20" }
+}
