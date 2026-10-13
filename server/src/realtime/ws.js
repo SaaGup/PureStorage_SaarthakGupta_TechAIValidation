@@ -81,6 +81,7 @@ export function attachRealtime({ server, store, engine, replay }) {
       thresholds: { latency: env.latency, cooldown_sec: env.alerts.cooldownSec },
       replay: replay.status(),
       alerts: engine.alerts.filter((a) => canSee(user, a.report_id)).slice(0, 50),
+      telemetry: replay.recent.filter((t) => canSee(user, t.report_id)),
     });
   });
 

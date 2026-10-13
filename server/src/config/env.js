@@ -40,7 +40,7 @@ export const env = {
   isProduction: process.env.NODE_ENV === "production",
   port: number("PORT", 4000, { min: 0 }),
   // Browser origins allowed to call the API (comma-separated)
-  clientOrigins: list("CLIENT_ORIGINS", "http://localhost:5173"),
+  clientOrigins: list("CLIENT_ORIGINS", "http://localhost:5173,http://localhost:4000"),
   // Set to true only when running behind a reverse proxy / load balancer
   trustProxy: process.env.TRUST_PROXY === "true",
   // One value drives both the JWT expiry and the cookie lifetime
@@ -55,6 +55,8 @@ export const env = {
   dataDir: filePath("DATA_DIR", path.join(repoDir, "data/processed")),
   docsDir: filePath("DOCS_DIR", path.join(repoDir, "docs")),
   usersFile: filePath("USERS_FILE", path.join(serverDir, "config/users.json")),
+  // Built React app (client/dist). When it exists, the API server also serves the dashboard.
+  clientDistDir: filePath("CLIENT_DIST_DIR", path.join(repoDir, "client/dist")),
   alerts: {
     // Same alert for the same report is suppressed for this long (unless severity escalates)
     cooldownSec: number("ALERT_COOLDOWN_SEC", 60, { min: 0 }),
@@ -66,6 +68,8 @@ export const env = {
     intervalMs: number("REPLAY_INTERVAL_MS", 1000, { min: 50 }),
     autostart: process.env.REPLAY_AUTOSTART !== "false",
     loop: process.env.REPLAY_LOOP !== "false",
+    // Recent readings sent to a dashboard when it connects, so the live chart starts full
+    historySize: number("REPLAY_HISTORY_SIZE", 90, { min: 0 }),
   },
   ws: {
     path: process.env.WS_PATH || "/ws",

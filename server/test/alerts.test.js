@@ -105,6 +105,14 @@ test("replay walks observations in file order, loops, and emits telemetry", () =
   assert.equal(engine.alerts[0].owner, "o@x.com");
 });
 
+test("replay keeps a capped history of recent telemetry", () => {
+  const { engine } = makeEngine();
+  const observations = Array.from({ length: 10 }, (_, i) => obs({ source_row: i + 2 }));
+  const replay = new ReplaySimulator({ observations, ownerOf: () => null, engine, intervalMs: 1000, loop: true, historySize: 4 });
+  for (let i = 0; i < 7; i++) replay.step();
+  assert.deepEqual(replay.recent.map((t) => t.source_row), [5, 6, 7, 8]);
+});
+
 test("replay without loop stops at the end", () => {
   const { engine } = makeEngine();
   const replay = new ReplaySimulator({ observations: [obs()], ownerOf: () => null, engine, intervalMs: 1000, loop: false });

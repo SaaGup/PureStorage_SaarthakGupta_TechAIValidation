@@ -10,10 +10,20 @@ server.listen(env.port, () => {
   console.log(`WebSocket ws://localhost:${env.port}${env.ws.path}`);
   console.log(`Loaded ${store.reports.length} reports, ${store.observations.length} observations`);
   if (secrets.jwtSecretIsGenerated) console.warn("JWT_SECRET not set: using a temporary secret (logins reset on restart)");
+  if (secrets.demoMode) console.log(`Demo mode: sign in with any account in config/users.json and the password "${secrets.demoPassword}"`);
   if (env.replay.autostart) {
     replay.start();
     console.log(`Telemetry replay started (one observation every ${env.replay.intervalMs} ms)`);
   }
+});
+
+// A clear message instead of a stack trace for the most common startup problem
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`Port ${env.port} is already in use. Stop the other process or set PORT in server/.env.`);
+    process.exit(1);
+  }
+  throw err;
 });
 
 // Log anything unexpected instead of dying silently

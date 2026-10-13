@@ -58,6 +58,11 @@ test("health endpoint is public", async () => {
   assert.equal(r.body.status, "ok");
 });
 
+test("health never exposes a password that someone chose", async () => {
+  const r = await call("/health");
+  assert.equal(r.body.demo, undefined); // tests run with a custom DEMO_PASSWORD
+});
+
 test("login sets an httpOnly, SameSite=Strict session cookie", async () => {
   const r = await call("/auth/login", { method: "POST", body: { email: ADMIN, password: PASSWORD } });
   assert.equal(r.status, 200);

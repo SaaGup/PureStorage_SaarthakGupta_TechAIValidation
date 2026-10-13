@@ -22,6 +22,7 @@ export function buildServer() {
     engine,
     intervalMs: env.replay.intervalMs,
     loop: env.replay.loop,
+    historySize: env.replay.historySize,
   });
   const app = createApp({
     store,

@@ -7,7 +7,7 @@
 import { EventEmitter } from "node:events";
 
 export class ReplaySimulator extends EventEmitter {
-  constructor({ observations, ownerOf, engine, intervalMs, loop }) {
+  constructor({ observations, ownerOf, engine, intervalMs, loop, historySize = 90 }) {
     super();
     this.observations = [...observations].sort((a, b) => a.source_row - b.source_row);
     this.ownerOf = ownerOf; // report_id -> latest known owner, used for alert routing
@@ -17,6 +17,8 @@ export class ReplaySimulator extends EventEmitter {
     this.position = 0;
     this.timer = null;
     this.cycles = 0;
+    this.historySize = historySize;
+    this.recent = []; // last N telemetry events, sent to dashboards when they connect
   }
 
   get running() {
@@ -43,7 +45,7 @@ export class ReplaySimulator extends EventEmitter {
     }
     const obs = this.observations[this.position++];
     const alerts = this.engine.evaluate(obs, { owner: this.ownerOf(obs.report_id) });
-    this.emit("telemetry", {
+    const event = {
       report_id: obs.report_id,
       report_name: obs.report_name,
       avg_load_time_sec: obs.avg_load_time_sec,
@@ -52,7 +54,10 @@ export class ReplaySimulator extends EventEmitter {
       source_row: obs.source_row,
       alerts_fired: alerts.length,
       at: new Date().toISOString(),
-    });
+    };
+    this.recent.push(event);
+    if (this.recent.length > this.historySize) this.recent.shift();
+    this.emit("telemetry", event);
     return obs;
   }
 

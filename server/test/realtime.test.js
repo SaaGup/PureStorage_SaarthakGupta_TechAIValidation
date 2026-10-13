@@ -72,6 +72,7 @@ test("WebSocket accepts the allowed Origin and sends hello", async () => {
   const { ws, hello } = await connect(t, { origin: "http://localhost:5173" });
   assert.equal(hello.user.role, "viewer");
   assert.equal(hello.thresholds.latency.warning, 15);
+  assert.ok(Array.isArray(hello.telemetry));
   ws.close();
 });
 

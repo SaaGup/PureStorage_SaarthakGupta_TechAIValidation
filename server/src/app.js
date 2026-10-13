@@ -1,10 +1,13 @@
 // Builds the Express app. Kept separate from server.js so tests can start it
 // on a random port without opening the WebSocket server or real ports.
+import fs from "node:fs";
+import path from "node:path";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
+import { secrets } from "./config/secrets.js";
 import { requestLog } from "./http/requestLog.js";
 import { errorHandler, notFoundHandler } from "./http/errors.js";
 import { authRouter } from "./routes/auth.js";
@@ -35,9 +38,13 @@ export function createApp({ store, extraRoutes = [] }) {
   app.use(express.json({ limit: "10kb" }));
   app.use(requestLog);
 
-  // Public liveness probe for load balancers / uptime checks
+    // Public liveness probe for load balancers / uptime checks.
+  // In demo mode it also tells the login screen the (already public) demo password,
+  // so reviewers can sign in with one click. A password someone chose is never sent.
   app.get("/api/v1/health", (req, res) => {
-    res.json({ status: "ok", uptime_sec: Math.round(process.uptime()), data_loaded_at: store.loadedAt });
+    const body = { status: "ok", uptime_sec: Math.round(process.uptime()), data_loaded_at: store.loadedAt };
+    if (secrets.demoMode) body.demo = { password: secrets.demoPassword };
+    res.json(body);
   });
 
   app.use("/api/v1/auth", authRouter);
@@ -46,7 +53,19 @@ export function createApp({ store, extraRoutes = [] }) {
   app.use("/api/v1/costs", costsRouter(store));
   app.use("/api/v1/orphans", orphansRouter(store));
   app.use("/api/v1/quality", qualityRouter(store));
-  for (const [path, router] of extraRoutes) app.use(path, router);
+  for (const [route, router] of extraRoutes) app.use(route, router);
+
+  // Production: serve the built dashboard from the same origin as the API, so the
+  // session cookie stays SameSite=Strict and no CORS is needed. Unknown non-API
+  // paths return index.html so client-side routes like /reports/RPT_200 work on refresh.
+  const indexHtml = path.join(env.clientDistDir, "index.html");
+  if (fs.existsSync(indexHtml)) {
+    app.use(express.static(env.clientDistDir, { index: false, maxAge: "1h" }));
+    app.use((req, res, next) => {
+      if (req.method !== "GET" || req.path.startsWith("/api/")) return next();
+      res.sendFile(indexHtml);
+    });
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);
