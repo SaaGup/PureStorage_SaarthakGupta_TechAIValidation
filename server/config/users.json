@@ -1,0 +1,6 @@
+[
+  { "email": "admin@pureinsights.local", "name": "Platform Admin", "role": "admin" },
+  { "email": "analyst@pureinsights.local", "name": "FinOps Analyst", "role": "analyst" },
+  { "email": "user_3@company.com", "name": "Report Owner (user_3)", "role": "owner" },
+  { "email": "viewer@pureinsights.local", "name": "Read-only Viewer", "role": "viewer" }
+]

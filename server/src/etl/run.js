@@ -3,20 +3,33 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { env } from "../config/env.js";
 import { parseCsv, toCsv } from "./csv.js";
 import { cleanRows, summariseReports } from "./clean.js";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const rawPath = path.join(root, "data/raw/pure_insights_monitoring.csv");
-const outDir = path.join(root, "data/processed");
-const docsDir = path.join(root, "docs");
+// Paths come from config (RAW_DATA_FILE, DATA_DIR, DOCS_DIR), never hardcoded.
+const rawPath = env.rawDataFile;
+const outDir = env.dataDir;
+const docsDir = env.docsDir;
+
+if (!fs.existsSync(rawPath)) {
+  console.error(`Raw data file not found: ${rawPath}\nPut the CSV there or set RAW_DATA_FILE in server/.env`);
+  process.exit(1);
+}
 
 fs.mkdirSync(outDir, { recursive: true });
 fs.mkdirSync(docsDir, { recursive: true });
 
 const raw = parseCsv(fs.readFileSync(rawPath, "utf8"));
+if (raw.length === 0) {
+  console.error("Raw data file has no data rows");
+  process.exit(1);
+}
 const { clean, rejected, log, totals } = cleanRows(raw);
+if (clean.length === 0) {
+  console.error("Every row was quarantined; check the input file");
+  process.exit(1);
+}
 const reports = summariseReports(clean);
 
 const cleanCols = Object.keys(clean[0]);
