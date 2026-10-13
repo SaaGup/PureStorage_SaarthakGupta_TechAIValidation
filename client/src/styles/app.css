@@ -81,7 +81,6 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.5;
-  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
@@ -97,7 +96,7 @@ button, input, select { font: inherit; color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .muted { color: var(--ink-2); }
 .faint { color: var(--ink-3); }
-.num { font-variant-numeric: tabular-nums; }
+.num { white-space: nowrap; }
 
 /* ---------- App shell ---------- */
 .shell { display: grid; grid-template-columns: var(--rail) 1fr; min-height: 100%; }
