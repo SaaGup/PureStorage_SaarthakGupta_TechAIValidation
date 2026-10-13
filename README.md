@@ -2,6 +2,15 @@
 
 An operational admin console for the analytics portal (React · Node.js/Express · WebSocket · Snowflake SQL).
 
+**Live demo: https://pure-insights-command-centre.onrender.com**
+The password is filled in for you: pick a role and sign in. (Free hosting: if the app has been idle, the first load can take up to a minute while it wakes up.)
+
+| Sign in as | Email | Password |
+|---|---|---|
+| Admin | `admin@pureinsights.local` | `pureinsights-demo` |
+| Report owner | `user_3@company.com` | `pureinsights-demo` |
+| Viewer (no cost data) | `viewer@pureinsights.local` | `pureinsights-demo` |
+
 After the move from Tableau Server to a custom portal, the business lost visibility of report usage, refresh failures, report ownership and Snowflake spend. This project restores it:
 
 - **Live load-time monitoring** with real-time alerts when a dashboard takes longer than 15 seconds or a data refresh fails
@@ -12,6 +21,14 @@ After the move from Tableau Server to a custom portal, the business lost visibil
 
 ![Overview](docs/screenshots/overview.png)
 
+### A 2-minute tour
+
+1. **Overview:** the live chart streams one report load per second; bars above the dashed 15s line raise alerts, and critical ones pop up as notifications.
+2. **Alerts:** severity tiers (warning, high, critical), repeat alerts held back for 60 seconds, and acknowledgements that sync live across every open session.
+3. **Cloud costs:** $4.07M attributed per report, $2.74 per view, $480K spent while reports had no owner, and 10 reports flagged for action.
+4. **Unowned reports** and **Data quality:** every defect in the export, how many rows it touched, and what was done about it.
+5. **Sign out and sign in as the report owner, then the viewer:** the same pages show only their 11 reports, or no cost figures at all. The server enforces this, not just the UI.
+
 ---
 
 ## Run it
@@ -20,7 +37,7 @@ After the move from Tableau Server to a custom portal, the business lost visibil
 
 ```bash
 npm run setup     # installs server and client dependencies
-npm test          # 70 automated tests (60 server, 10 client)
+npm test          # 75 automated tests (65 server, 10 client)
 npm run build     # builds the dashboard
 npm start         # cleans the data, then serves API + dashboard + WebSocket
 ```
@@ -49,7 +66,15 @@ npm run dev:client   # terminal 2: dashboard on :5173 (proxies /api and /ws to :
 
 ### Configuration
 
-Copy `server/.env.example` to `server/.env` to change anything: port, thresholds, credit price, rate limits, paths. Nothing is hard-coded. In production (`NODE_ENV=production`) the server refuses to start without `JWT_SECRET` and `DEMO_PASSWORD`, and demo mode is disabled.
+Copy `server/.env.example` to `server/.env` to change anything: port, thresholds, credit price, rate limits, paths. Nothing is hard-coded. In production (`NODE_ENV=production`) the server refuses to start without `JWT_SECRET` and `DEMO_PASSWORD`, and demo mode is off unless `PUBLIC_DEMO=true` is set (used for the live demo).
+
+### Deploy
+
+The server serves the API, the WebSocket and the built dashboard from one process, so it deploys as a single web service (the live demo runs on Render):
+
+- **Build:** `npm run setup && npm run build`
+- **Start:** `npm start` (cleans the data, then starts the server)
+- **Environment:** `NODE_ENV=production`, `JWT_SECRET` (32+ random characters), `DEMO_PASSWORD`, `PUBLIC_DEMO=true` (pre-fills the password for reviewers), `TRUST_PROXY=true`, and `CLIENT_ORIGINS` set to the public URL (the WebSocket rejects any other origin)
 
 ---
 
@@ -171,6 +196,7 @@ npm test
 | `server/test/api.test.js` | Login, cookie flags, forged and unsigned tokens, RBAC at all three levels, validation, and totals that match the SQL suite |
 | `server/test/alerts.test.js` | Thresholds, severity tiers, cooldown, escalation, buffer cap, acknowledgement, replay |
 | `server/test/realtime.test.js` | WebSocket auth and Origin rejection, owner-scoped delivery, live ack broadcast, oversized messages |
+| `server/test/demo.test.js` | Demo mode is never on in production unless explicitly enabled, and never removes the secret checks |
 | `client/src/lib/*.test.js` | Live-feed reducer, reconnect backoff, number formatting |
 
 Three independent implementations agree on every figure: the Node ETL, the Node API cost model and the SQL suite. The API tests and `verify_sql.py` check this.

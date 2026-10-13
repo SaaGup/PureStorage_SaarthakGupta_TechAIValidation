@@ -113,7 +113,7 @@ Liveness probe.
 ```json
 { "status": "ok", "uptime_sec": 4, "data_loaded_at": "2026-10-13T14:09:52.971Z" }
 ```
-In **demo mode** only (development, with no `DEMO_PASSWORD` configured) the response also includes `"demo": { "password": "pureinsights-demo" }`, so the login screen can pre-fill the public demo password. A password someone configured is never returned, and demo mode never runs in production.
+In **demo mode** only, the response also includes `"demo": { "password": "..." }` so the login screen can pre-fill it. Demo mode is on in development when no `DEMO_PASSWORD` is configured, or in a public showcase deployment that explicitly sets `PUBLIC_DEMO=true` (the live demo). Otherwise a configured password is never returned.
 
 ### 4.2 `GET /overview` (any signed-in user)
 Headline KPIs, scoped to what the user can see (`scope` is `platform` or `own_reports`). `costs` is present only with `costs:read`.
@@ -403,6 +403,7 @@ Every value is set in `server/.env` (see `server/.env.example`). Nothing is hard
 |---|---|---|
 | `JWT_SECRET` | random per process (dev) | Token signing key, 32+ characters. **Required in production.** |
 | `DEMO_PASSWORD` | `pureinsights-demo` (dev only) | Demo account password. **Required in production.** |
+| `PUBLIC_DEMO` | `false` | `true` pre-fills the demo password on the login screen, even in production. Only for a public showcase with no real data. |
 | `PORT` | 4000 | HTTP and WebSocket port |
 | `CLIENT_ORIGINS` | `http://localhost:5173,http://localhost:4000` | Allowed browser origins (CORS and WebSocket Origin check) |
 | `SESSION_TTL_HOURS` | 8 | JWT and cookie lifetime |
