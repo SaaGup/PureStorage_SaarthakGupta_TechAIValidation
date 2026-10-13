@@ -1,0 +1,16 @@
+{
+  "name": "pure-insights-command-centre",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Admin console for the analytics portal: report health, real-time alerts, ownership and Snowflake cost attribution",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix client install",
+    "test": "npm --prefix server test && npm --prefix client test",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "audit": "npm --prefix server audit && npm --prefix client audit"
+  },
+  "engines": { "node": ">=20.12" }
+}
