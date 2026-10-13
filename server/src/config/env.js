@@ -43,6 +43,9 @@ export const env = {
   clientOrigins: list("CLIENT_ORIGINS", "http://localhost:5173,http://localhost:4000"),
   // Set to true only when running behind a reverse proxy / load balancer
   trustProxy: process.env.TRUST_PROXY === "true",
+  // Public demo deployment: the login screen pre-fills the demo password, even in production.
+  // Only for a deliberately public showcase; the password then is not a secret.
+  publicDemo: process.env.PUBLIC_DEMO === "true",
   // One value drives both the JWT expiry and the cookie lifetime
   sessionTtlHours: number("SESSION_TTL_HOURS", 8, { min: 1 }),
   rateLimit: {

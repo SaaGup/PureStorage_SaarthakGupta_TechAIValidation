@@ -25,6 +25,7 @@ export const secrets = {
   jwtSecret,
   jwtSecretIsGenerated: !process.env.JWT_SECRET,
   demoPassword,
-  // True only when nobody chose a password and we're not in production
-  demoMode: !env.isProduction && demoPassword === DEFAULT_DEMO_PASSWORD,
+  // Demo mode (login screen pre-fills the password): either a development run where nobody
+  // chose a password, or a deployment that explicitly opted in with PUBLIC_DEMO=true.
+  demoMode: env.publicDemo || (!env.isProduction && demoPassword === DEFAULT_DEMO_PASSWORD),
 };
