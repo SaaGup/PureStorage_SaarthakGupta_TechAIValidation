@@ -19,7 +19,13 @@ export function signToken(user) {
 export function verifyToken(token) {
   try {
     const claims = jwt.verify(token, secrets.jwtSecret, { algorithms: ["HS256"] });
-    return { email: claims.sub, name: claims.name, role: claims.role, permissions: permissionsFor(claims.role) };
+    return {
+      email: claims.sub,
+      name: claims.name,
+      role: claims.role,
+      permissions: permissionsFor(claims.role),
+      expiresAt: claims.exp * 1000, // used to close WebSockets when the session ends
+    };
   } catch {
     return null;
   }

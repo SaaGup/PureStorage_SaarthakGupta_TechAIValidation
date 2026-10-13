@@ -55,4 +55,20 @@ export const env = {
   dataDir: filePath("DATA_DIR", path.join(repoDir, "data/processed")),
   docsDir: filePath("DOCS_DIR", path.join(repoDir, "docs")),
   usersFile: filePath("USERS_FILE", path.join(serverDir, "config/users.json")),
+  alerts: {
+    // Same alert for the same report is suppressed for this long (unless severity escalates)
+    cooldownSec: number("ALERT_COOLDOWN_SEC", 60, { min: 0 }),
+    // How many recent alerts the server keeps in memory
+    bufferSize: number("ALERT_BUFFER_SIZE", 500, { min: 10 }),
+  },
+  replay: {
+    // The replay simulator streams the cleaned observations as live telemetry
+    intervalMs: number("REPLAY_INTERVAL_MS", 1000, { min: 50 }),
+    autostart: process.env.REPLAY_AUTOSTART !== "false",
+    loop: process.env.REPLAY_LOOP !== "false",
+  },
+  ws: {
+    path: process.env.WS_PATH || "/ws",
+    heartbeatSec: number("WS_HEARTBEAT_SEC", 30, { min: 5 }),
+  },
 };

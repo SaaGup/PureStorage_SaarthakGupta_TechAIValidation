@@ -41,8 +41,11 @@ export function loadStore() {
     };
   });
 
+  const reportById = new Map(enriched.map((r) => [r.report_id, r]));
+
   return {
     loadedAt: new Date().toISOString(),
+    reportById: (id) => reportById.get(id) ?? null,
     usdPerCredit: env.usdPerCredit,
     reports: enriched,
     observations,

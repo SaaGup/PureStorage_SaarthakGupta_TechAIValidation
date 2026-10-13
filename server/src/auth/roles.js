@@ -9,6 +9,7 @@ export const PERMISSIONS = {
   QUALITY_READ: "quality:read",
   ALERTS_READ: "alerts:read",
   ALERTS_ACK: "alerts:ack",
+  REPLAY_CONTROL: "replay:control",
 };
 
 const P = PERMISSIONS;
